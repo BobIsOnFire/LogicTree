@@ -22,4 +22,17 @@ public class Operator {
 
         return sb.append(')').toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Operator)) return false;
+
+        Operator op = (Operator) obj;
+        if (op.operation != this.operation) return false;
+        if (op.operators.length != this.operators.length) return false;
+
+        for (int i = 0; i < this.operators.length; i++)
+            if ( !this.operators[i].equals( op.operators[i] ) ) return false;
+        return true;
+    }
 }

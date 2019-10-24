@@ -9,4 +9,10 @@ public class Variable extends Operator {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Variable)) return false;
+        return ((Variable) obj).name.equals(this.name);
+    }
 }
