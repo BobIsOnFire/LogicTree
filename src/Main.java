@@ -1,5 +1,3 @@
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -15,7 +13,6 @@ public class Main {
         if (!scanner.hasNextLine()) System.exit(0);
 
         String input = scanner.nextLine();
-        Instant start = Instant.now();
 
         String[] tokens = input.replaceAll("\\s+", "").split("(,|\\|-)");
         for (int i = 0; i < tokens.length - 1; i++)
@@ -31,23 +28,23 @@ public class Main {
             Expression exp = new ExpressionParser(s).parse();
             if (steps.indexOf(exp) >= 0) continue;
 
-            steps.add(exp);
-            isUsed.add(false);
-            notes.add(getNote(exp));
-        }
-
-        isUsed.set(isUsed.size() - 1, true);
-
-        if (!steps.get(steps.size() - 1).equals(result)) {
-            System.out.println("Proof is incorrect");
-            System.exit(0);
-        }
-
-        for (int i = 0; i < steps.size(); i++) {
-            if (notes.get(i) == null && isUsed.get(i)) {
+            Annotation annotation = getNote(exp);
+            if (annotation == null) {
                 System.out.println("Proof is incorrect");
                 System.exit(0);
             }
+
+            steps.add(exp);
+            isUsed.add(false);
+            notes.add(annotation);
+
+            if (exp.equals(result)) break;
+        }
+
+        isUsed.set(isUsed.size() - 1, true);
+        if (!steps.get(steps.size() - 1).equals(result)) {
+            System.out.println("Proof is incorrect");
+            System.exit(0);
         }
 
         String hype = String.join(", ", hypotheses.stream().map(Expression::toString).toArray(String[]::new) );
@@ -67,15 +64,17 @@ public class Main {
             String note = finalNotes.get(i).getAnnotation(steps, finalSteps);
             System.out.println("[" + (i + 1) + ". " + note + "] " + finalSteps.get(i).toString());
         }
-
-        long millis = Duration.between(start, Instant.now()).toMillis();
-        System.out.println(millis);
     }
 
     private static Annotation getNote(Expression exp) {
 
         int index = hypotheses.indexOf(exp);
         if (index >= 0) return new Annotation("Hypothesis", index);
+
+        SchemeMatcher em = new SchemeMatcher(exp);
+        index = em.matchAll(axioms);
+
+        if (index != -1) return new Annotation("Ax. sch.", index);
 
         ModusPonensMatcher mpm = new ModusPonensMatcher(exp);
         int[] indexes = mpm.findArguments(steps);
@@ -85,12 +84,6 @@ public class Main {
             isUsed.set(indexes[1], true);
             return new Annotation("M.P.", indexes);
         }
-
-        SchemeMatcher em = new SchemeMatcher(exp);
-        index = em.matchAll(axioms);
-
-        if (index != -1) return new Annotation("Ax. sch.", index);
-
         return null;
     }
 }
