@@ -7,6 +7,7 @@ public class Main {
     private static List<Expression> steps = new ArrayList<>();
     private static List<Expression> hypotheses = new ArrayList<>();
     private static List<Boolean> isUsed = new ArrayList<>();
+    private static List<Annotation> notes = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -18,7 +19,6 @@ public class Main {
         for (int i = 0; i < tokens.length - 1; i++)
             if(!tokens[i].isEmpty()) hypotheses.add( new ExpressionParser(tokens[i]).parse() );
 
-        List<Annotation> notes = new ArrayList<>();
         Expression result = new ExpressionParser(tokens[tokens.length - 1]).parse();
 
         while (scanner.hasNextLine()) {
@@ -50,6 +50,8 @@ public class Main {
         String hype = String.join(", ", hypotheses.stream().map(Expression::toString).toArray(String[]::new) );
         System.out.println( (hype.isEmpty() ? "" : hype + " ") + "|- " + result.toString()  );
 
+        setUsage(steps.size() - 1);
+
         List<Expression> finalSteps = new ArrayList<>();
         List<Annotation> finalNotes = new ArrayList<>();
 
@@ -79,11 +81,18 @@ public class Main {
         ModusPonensMatcher mpm = new ModusPonensMatcher(exp);
         int[] indexes = mpm.findArguments(steps);
 
-        if (indexes != null) {
-            isUsed.set(indexes[0], true);
-            isUsed.set(indexes[1], true);
+        if (indexes != null)
             return new Annotation("M.P.", indexes);
-        }
+
         return null;
+    }
+
+    private static void setUsage(int index) {
+        isUsed.set(index, true);
+        Annotation annotation = notes.get(index);
+        if (annotation.isMP()) {
+            setUsage(annotation.getI());
+            setUsage(annotation.getJ());
+        }
     }
 }

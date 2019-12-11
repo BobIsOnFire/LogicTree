@@ -8,7 +8,7 @@ public class Annotation {
 
     public Annotation(String type, int... nums) {
         this.type = type;
-        this.isMP = type.equals("M.P.");
+        this.isMP = type.equals("M.P.") && nums.length > 1;
         i = nums[0];
         if (isMP) j = nums[1];
     }
@@ -19,6 +19,18 @@ public class Annotation {
         int jFinal = finalSteps.indexOf(steps.get(j));
 
         return type + " " + (iFinal + 1) + ", " + (jFinal + 1);
+    }
+
+    public boolean isMP() {
+        return isMP;
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public int getJ() {
+        return j;
     }
 
     public String getAnnotation() {
