@@ -7,12 +7,12 @@ public class ModusPonensMatcher {
         this.current = current;
     }
 
-    public int[] findArguments(List<Expression> expressions) {
-        for (int i = expressions.size() - 1; i >= 0; i--) {
+    public int[] findArguments(List<Expression> expressions, int sup) {
+        for (int i = 0; i < sup; i++) {
             Expression exp = expressions.get(i);
 
             if (exp.getOperation() == Operation.IMPLICATION && exp.getOperands()[1].equals(current))
-                for (int j = expressions.size() - 1; j >= 0; j--)
+                for (int j = 0; j < sup; j++)
                     if (expressions.get(j).equals(exp.getOperands()[0])) return new int[]{i, j};
         }
 

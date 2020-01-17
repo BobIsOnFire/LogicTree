@@ -16,10 +16,28 @@ public class Expression {
 
     private Operation operation;
     private Expression[] operands;
+    protected String description;
+    private Note note;
+
+    public Note getNote() {
+        return note;
+    }
+
+    public void setNote(Note note) {
+        this.note = note;
+    }
 
     public Expression(Operation operation, Expression... operands) {
         this.operation = operation;
         this.operands = operands;
+
+        if (operation == Operation.NONE) return;
+
+        String sign = operation.getSign();
+        if (operation == Operation.NEGATION)
+            this.description = sign + operands[0].toString();
+        else
+            this.description = String.format("(%s %s %s)", operands[0], sign, operands[1]);
     }
 
     public Expression[] getOperands() {
@@ -32,25 +50,12 @@ public class Expression {
 
     @Override
     public String toString() {
-        String sign = operation.getSign();
-        if (operation == Operation.NEGATION)
-            return sign + operands[0].toString();
-        if (operation == Operation.NONE)
-            return operands[0].toString();
-
-        return "(" + operands[0] + " " + sign + " " + operands[1] + ')';
+        return this.description;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Expression)) return false;
-
-        Expression op = (Expression) obj;
-        if (op.operation != this.operation) return false;
-        if (op.operands.length != this.operands.length) return false;
-
-        for (int i = 0; i < this.operands.length; i++)
-            if ( !this.operands[i].equals( op.operands[i] ) ) return false;
-        return true;
+        return ((Expression) obj).description.equals(this.description);
     }
 }
